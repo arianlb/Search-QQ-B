@@ -1,60 +1,15 @@
 const axios = require("axios");
+const { getAccessToken1, getAccessToken2 } = require("./accessToken");
 let accessToken1;
 let accessToken2;
-
-const getAccessToken1 = async () => {
-  const params = new URLSearchParams();
-  params.append("client_id", process.env.QQ1_CLIENT_ID);
-  params.append("client_secret", process.env.QQ1_CLIENT_SECRET);
-  params.append("grant_type", "password");
-  params.append("username", process.env.QQ1_USER);
-  params.append("password", process.env.QQ1_PASSWORD);
-
-  try {
-    const response = await axios.post(
-      "https://login.qqcatalyst.com/oauth/token",
-      params,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      },
-    );
-
-    return response.data.access_token;
-  } catch (error) {
-    throw new Error("Failed to fetch access token QQ-1");
-  }
-};
-
-const getAccessToken2 = async () => {
-  const params = new URLSearchParams();
-  params.append("client_id", process.env.QQ2_CLIENT_ID);
-  params.append("client_secret", process.env.QQ2_CLIENT_SECRET);
-  params.append("grant_type", "password");
-  params.append("username", process.env.QQ2_USER);
-  params.append("password", process.env.QQ2_PASSWORD);
-
-  try {
-    const response = await axios.post(
-      "https://login.qqcatalyst.com/oauth/token",
-      params,
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      },
-    );
-
-    return response.data.access_token;
-  } catch (error) {
-    throw new Error("Failed to fetch access token QQ-2");
-  }
-};
+const user1 = process.env.QQ1_USER;
+const password1 = process.env.QQ1_PASSWORD;
+const user2 = process.env.QQ2_USER;
+const password2 = process.env.QQ2_PASSWORD;
 
 const qqCatalystRequest1 = async (criteria) => {
   if (!accessToken1) {
-    accessToken1 = await getAccessToken1();
+    accessToken1 = await getAccessToken1(user1, password1);
   }
 
   const headers = {
@@ -71,7 +26,7 @@ const qqCatalystRequest1 = async (criteria) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken1 = await getAccessToken1();
+      accessToken1 = await getAccessToken1(user1, password1);
       headers.Authorization = `Bearer ${accessToken1}`;
     }
 
@@ -89,7 +44,7 @@ const qqCatalystRequest1 = async (criteria) => {
 
 const qqCatalystRequest2 = async (criteria) => {
   if (!accessToken2) {
-    accessToken2 = await getAccessToken2();
+    accessToken2 = await getAccessToken2(user2, password2);
   }
 
   const headers = {
@@ -106,7 +61,7 @@ const qqCatalystRequest2 = async (criteria) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken2 = await getAccessToken2();
+      accessToken2 = await getAccessToken2(user2, password2);
       headers.Authorization = `Bearer ${accessToken2}`;
     }
 
@@ -124,7 +79,7 @@ const qqCatalystRequest2 = async (criteria) => {
 
 const qqCatalystRequestPolicies1 = async (customerId) => {
   if (!accessToken1) {
-    accessToken1 = await getAccessToken1();
+    accessToken1 = await getAccessToken1(user1, password1);
   }
 
   const headers = {
@@ -141,7 +96,7 @@ const qqCatalystRequestPolicies1 = async (customerId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken1 = await getAccessToken1();
+      accessToken1 = await getAccessToken1(user1, password1);
       headers.Authorization = `Bearer ${accessToken1}`;
     }
 
@@ -159,7 +114,7 @@ const qqCatalystRequestPolicies1 = async (customerId) => {
 
 const qqCatalystRequestPolicies2 = async (customerId) => {
   if (!accessToken2) {
-    accessToken2 = await getAccessToken2();
+    accessToken2 = await getAccessToken2(user2, password2);
   }
 
   const headers = {
@@ -176,7 +131,7 @@ const qqCatalystRequestPolicies2 = async (customerId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken2 = await getAccessToken2();
+      accessToken2 = await getAccessToken2(user2, password2);
       headers.Authorization = `Bearer ${accessToken2}`;
     }
 
@@ -194,7 +149,7 @@ const qqCatalystRequestPolicies2 = async (customerId) => {
 
 const qqCatalystRequestInfo1 = async (contactId) => {
   if (!accessToken1) {
-    accessToken1 = await getAccessToken1();
+    accessToken1 = await getAccessToken1(user1, password1);
   }
 
   const headers = {
@@ -211,7 +166,7 @@ const qqCatalystRequestInfo1 = async (contactId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken1 = await getAccessToken1();
+      accessToken1 = await getAccessToken1(user1, password1);
       headers.Authorization = `Bearer ${accessToken1}`;
     }
 
@@ -229,7 +184,7 @@ const qqCatalystRequestInfo1 = async (contactId) => {
 
 const qqCatalystRequestInfo2 = async (contactId) => {
   if (!accessToken2) {
-    accessToken2 = await getAccessToken2();
+    accessToken2 = await getAccessToken2(user2, password2);
   }
 
   const headers = {
@@ -246,7 +201,7 @@ const qqCatalystRequestInfo2 = async (contactId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken2 = await getAccessToken2();
+      accessToken2 = await getAccessToken2(user2, password2);
       headers.Authorization = `Bearer ${accessToken2}`;
     }
 
@@ -264,7 +219,7 @@ const qqCatalystRequestInfo2 = async (contactId) => {
 
 const qqCatalystRequestNotes1 = async (contactId) => {
   if (!accessToken1) {
-    accessToken1 = await getAccessToken1();
+    accessToken1 = await getAccessToken1(user1, password1);
   }
 
   const headers = {
@@ -281,7 +236,7 @@ const qqCatalystRequestNotes1 = async (contactId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken1 = await getAccessToken1();
+      accessToken1 = await getAccessToken1(user1, password1);
       headers.Authorization = `Bearer ${accessToken1}`;
     }
 
@@ -299,7 +254,7 @@ const qqCatalystRequestNotes1 = async (contactId) => {
 
 const qqCatalystRequestNotes2 = async (contactId) => {
   if (!accessToken2) {
-    accessToken2 = await getAccessToken2();
+    accessToken2 = await getAccessToken2(user2, password2);
   }
 
   const headers = {
@@ -316,7 +271,7 @@ const qqCatalystRequestNotes2 = async (contactId) => {
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
-      accessToken2 = await getAccessToken2();
+      accessToken2 = await getAccessToken2(user2, password2);
       headers.Authorization = `Bearer ${accessToken2}`;
     }
 

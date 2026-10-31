@@ -1,0 +1,147 @@
+const axios = require("axios");
+const { getAccessToken1, getAccessToken2 } = require("./accessToken");
+const { qqCatalystRequest1, qqCatalystRequest2 } = require("./qqcatalyst");
+let accessToken1;
+let accessToken2;
+const user1 = process.env.QQ89_USER;
+const password1 = process.env.QQ89_PASSWORD;
+const user2 = process.env.QQ117_USER;
+const password2 = process.env.QQ117_PASSWORD;
+const agents = [
+  ["Valery Romero", 37419, 18437],
+  ["Sebastian Delgadillo", 37520, 18437],
+  ["Antonio Munoz", 40624, 18437],
+  ["Gabriela Vazquez", 35841, 18437],
+  ["Sonia Bobadilla", 19367, 18437],
+  ["Lisbeth Lasso", 7805, 1],
+  ["Vanessa Arevalo", 9608, 1],
+  ["Victoria Thomas", 40772, 18437],
+  ["Jeimy Jimenez", 35860, 18437],
+  ["Isabella Pombo", 36183, 18437],
+  ["Steven Franco", 24413, 18437],
+  ["Valeria Medina", 30032, 18437],
+  ["Camila Burbano", 37306, 18437],
+  ["Paula Castaneda", 38084, 18437],
+  ["Laura Yaya", 41121, 18437],
+  ["Monica Barrero", 41457, 18437],
+  ["Darelis Fernandez", 2, 1],
+  ["Johana Pulido", 9984, 1],
+];
+
+const insertContact = async (contactData) => {
+  if (!accessToken1) {
+    accessToken1 = await getAccessToken1(user1, password1);
+  }
+  const cleanPhoneNumber = contactData.Phone.replace(/\D/g, "");
+
+  if (!(await search(cleanPhoneNumber))) {
+    const { agentId, officeId } = getAgentId(contactData.AgentName);
+    const contactPayload = {
+      FirstName: contactData.FirstName,
+      LastName: contactData.LastName,
+      Email: contactData.Email,
+      Phone: cleanPhoneNumber,
+      AgentId: agentId,
+      LocationID: officeId,
+      ContactSubType: "P",
+      ContactType: "P",
+      Status: "A",
+    };
+
+    if (officeId === 18437) {
+      await qqCatalystInsertContact1(contactPayload);
+    } else if (officeId === 1) {
+      await qqCatalystInsertContact2(contactPayload);
+    }
+  }
+};
+
+const search = async (phoneNumber) => {
+  const [sebanda89, sebanda117] = await Promise.all([
+    qqCatalystRequest1(phoneNumber),
+    qqCatalystRequest2(phoneNumber),
+  ]);
+  return sebanda89.length > 0 || sebanda117.length > 0;
+};
+
+const getAgentId = (agentName) => {
+  const agent = agents.find(([name]) => name === agentName);
+  return agent
+    ? { agentId: agent[1], officeId: agent[2] }
+    : { agentId: 2, officeId: 1 };
+};
+
+const qqCatalystInsertContact1 = async (contactPayload) => {
+  if (!accessToken1) {
+    accessToken1 = await getAccessToken1(user1, password1);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken1}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
+      headers,
+    });
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken1 = await getAccessToken1(user1, password1);
+      headers.Authorization = `Bearer ${accessToken1}`;
+    }
+
+    try {
+      await axios.put(
+        "https://api.qqcatalyst.com/v1/Contacts",
+        contactPayload,
+        {
+          headers,
+        },
+      );
+    } catch (error) {
+      throw new Error(
+        "Failed to insert contact from QQCatalyst after token refresh",
+      );
+    }
+  }
+};
+
+const qqCatalystInsertContact2 = async (contactPayload) => {
+  if (!accessToken2) {
+    accessToken2 = await getAccessToken2(user2, password2);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken2}`,
+    "Content-Type": "application/json",
+  };
+  try {
+    await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
+      headers,
+    });
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken2 = await getAccessToken2(user2, password2);
+      headers.Authorization = `Bearer ${accessToken2}`;
+    }
+
+    try {
+      await axios.put(
+        "https://api.qqcatalyst.com/v1/Contacts",
+        contactPayload,
+        {
+          headers,
+        },
+      );
+    } catch (error) {
+      throw new Error(
+        "Failed to insert contact from QQCatalyst after token refresh",
+      );
+    }
+  }
+};
+
+module.exports = {
+  insertContact,
+};

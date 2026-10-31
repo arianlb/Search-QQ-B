@@ -18,6 +18,7 @@ class Server {
 
     routes() {
         this.app.use('/api/main', require('./routes/mainRouter'));
+        this.app.use('/api/crm', require('./routes/crmRouter'));
     }
 
     listen() {
