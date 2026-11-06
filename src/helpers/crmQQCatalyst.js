@@ -29,11 +29,7 @@ const agents = [
 ];
 
 const insertContact = async (contactData) => {
-  if (!accessToken1) {
-    accessToken1 = await getAccessToken1(user1, password1);
-  }
   const cleanPhoneNumber = contactData.Phone.replace(/\D/g, "");
-
   const contactExistsId = await search(cleanPhoneNumber);
 
   if (contactExistsId === 0) {
@@ -69,11 +65,11 @@ const search = async (phoneNumber) => {
   ]);
 
   if (sebanda89.length > 0) {
-    return sebanda89[0].EntityID;
+    return sebanda89[0].EntityId;
   }
 
   if (sebanda117.length > 0) {
-    return sebanda117[0].EntityID;
+    return sebanda117[0].EntityId;
   }
 
   return 0;
