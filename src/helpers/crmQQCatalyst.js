@@ -34,7 +34,9 @@ const insertContact = async (contactData) => {
   }
   const cleanPhoneNumber = contactData.Phone.replace(/\D/g, "");
 
-  if (!(await search(cleanPhoneNumber))) {
+  const contactExistsId = await search(cleanPhoneNumber);
+
+  if (contactExistsId === 0) {
     const { agentId, officeId } = getAgentId(contactData.AgentName);
     const contactPayload = {
       FirstName: contactData.FirstName,
@@ -54,8 +56,10 @@ const insertContact = async (contactData) => {
       return qqCatalystInsertContact2(contactPayload);
     }
     
-    return { EntityID: 0,ErrorMessage: "office ID not found." };
+    return { EntityID: 0, ErrorMessage: "office ID not found." };
   }
+  
+  return { EntityID: contactExistsId, ErrorMessage: "Contact already exists." };
 };
 
 const search = async (phoneNumber) => {
@@ -63,7 +67,16 @@ const search = async (phoneNumber) => {
     qqCatalystRequest1(phoneNumber),
     qqCatalystRequest2(phoneNumber),
   ]);
-  return sebanda89.length > 0 || sebanda117.length > 0;
+
+  if (sebanda89.length > 0) {
+    return sebanda89[0].EntityID;
+  }
+
+  if (sebanda117.length > 0) {
+    return sebanda117[0].EntityID;
+  }
+
+  return 0;
 };
 
 const getAgentId = (agentName) => {
