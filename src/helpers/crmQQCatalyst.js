@@ -49,10 +49,12 @@ const insertContact = async (contactData) => {
     };
 
     if (officeId === 18437) {
-      await qqCatalystInsertContact1(contactPayload);
+      return qqCatalystInsertContact1(contactPayload);
     } else if (officeId === 1) {
-      await qqCatalystInsertContact2(contactPayload);
+      return qqCatalystInsertContact2(contactPayload);
     }
+    
+    return { EntityID: 0,ErrorMessage: "office ID not found." };
   }
 };
 
@@ -81,9 +83,10 @@ const qqCatalystInsertContact1 = async (contactPayload) => {
   };
 
   try {
-    await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
+    const response = await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
       headers,
     });
+    return response.data;
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
@@ -92,13 +95,14 @@ const qqCatalystInsertContact1 = async (contactPayload) => {
     }
 
     try {
-      await axios.put(
+      const response = await axios.put(
         "https://api.qqcatalyst.com/v1/Contacts",
         contactPayload,
         {
           headers,
         },
       );
+      return response.data;
     } catch (error) {
       throw new Error(
         "Failed to insert contact from QQCatalyst after token refresh",
@@ -116,9 +120,10 @@ const qqCatalystInsertContact2 = async (contactPayload) => {
     "Content-Type": "application/json",
   };
   try {
-    await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
+    const response = await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
       headers,
     });
+    return response.data;
   } catch (error) {
     if (error.status === 401) {
       await new Promise((resolve) => setTimeout(resolve, 60000));
@@ -127,13 +132,14 @@ const qqCatalystInsertContact2 = async (contactPayload) => {
     }
 
     try {
-      await axios.put(
+      const response = await axios.put(
         "https://api.qqcatalyst.com/v1/Contacts",
         contactPayload,
         {
           headers,
         },
       );
+      return response.data;
     } catch (error) {
       throw new Error(
         "Failed to insert contact from QQCatalyst after token refresh",
