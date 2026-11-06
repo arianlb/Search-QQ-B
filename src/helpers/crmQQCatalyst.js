@@ -39,8 +39,8 @@ const insertContact = async (contactData) => {
   if (contactExistsId === 0) {
     const { agentId, officeId } = getAgentId(contactData.AgentName);
     const contactPayload = {
-      FirstName: contactData.FirstName,
-      LastName: contactData.LastName,
+      FirstName: formatName(contactData.FirstName),
+      LastName: formatName(contactData.LastName),
       Email: contactData.Email,
       Phone: cleanPhoneNumber,
       AgentId: agentId,
@@ -85,6 +85,8 @@ const getAgentId = (agentName) => {
     ? { agentId: agent[1], officeId: agent[2] }
     : { agentId: 2, officeId: 1 };
 };
+
+const formatName = (name) => name?.trim() || ".";
 
 const qqCatalystInsertContact1 = async (contactPayload) => {
   if (!accessToken1) {
