@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { getAccessToken1, getAccessToken2 } = require("./accessToken");
-const { qqCatalystRequest1, qqCatalystRequest2 } = require("./qqcatalyst");
+const { qqCatalystRequest1, qqCatalystRequest2, qqCatalystRequestNotes1, qqCatalystRequestNotes2 } = require("./qqcatalyst");
 let accessToken1;
 let accessToken2;
 const user1 = process.env.QQ89_USER;
@@ -51,11 +51,59 @@ const insertContact = async (contactData) => {
     } else if (officeId === 1) {
       return qqCatalystInsertContact2(contactPayload);
     }
-    
+
     return { EntityID: 0, ErrorMessage: "office ID not found." };
   }
-  
+
   return { EntityID: contactExistsId, ErrorMessage: "Contact already exists." };
+};
+
+const getNotes = async (contactData) => {
+  const contact = await getContactIdForNotes(contactData);
+  if (contact.EntityId !== 0 && contact.Office === 89) {
+    return qqCatalystRequestNotes1(contact.EntityId);
+  }
+  if (contact.EntityId !== 0 && contact.Office === 117) {
+    return qqCatalystRequestNotes2(contact.EntityId);
+  }
+  return [];
+};
+
+const insertNotes = async (noteData) => {
+  const contact = await getContactIdForNotes(noteData);
+  const notePayload = {
+    AssignedContactId: contact.EntityId,
+    Comment: noteData.Comment || ".",
+    CreatedBy: noteData.CreatedBy || "Trust CRM",
+  };
+  if (contact.EntityId !== 0 && contact.Office === 89) {
+    return qqCatalystInsertNotes1(notePayload);
+  }
+  if (contact.EntityId !== 0 && contact.Office === 117) {
+    return qqCatalystInsertNotes2(notePayload);
+  }
+  return { Result: false, ErrorMessage: "Contact not found for inserting notes." };
+};
+
+const getContactIdForNotes = async (contactData) => {
+  const contactId = contactData.QQID;
+  const phoneNumber = contactData.Phone.replace(/\D/g, "");
+  const [contact89, contact117] = await Promise.all([
+    qqCatalystRequest1(phoneNumber),
+    qqCatalystRequest2(phoneNumber),
+  ]);
+
+  if (contact89.length > 0) {
+    const { EntityId } = contact89.find(({ EntityId }) => EntityId === contactId) || { EntityId: contact89[0].EntityId };
+    return { EntityId, Office: 89 };
+  }
+
+  if (contact117.length > 0) {
+    const { EntityId } = contact117.find(({ EntityId }) => EntityId === contactId) || { EntityId: contact117[0].EntityId };
+    return { EntityId, Office: 117 };
+  }
+
+  return { EntityId: 0, Office: null };
 };
 
 const search = async (phoneNumber) => {
@@ -94,9 +142,13 @@ const qqCatalystInsertContact1 = async (contactPayload) => {
   };
 
   try {
-    const response = await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
-      headers,
-    });
+    const response = await axios.put(
+      "https://api.qqcatalyst.com/v1/Contacts",
+      contactPayload,
+      {
+        headers,
+      },
+    );
     return response.data;
   } catch (error) {
     if (error.status === 401) {
@@ -131,9 +183,13 @@ const qqCatalystInsertContact2 = async (contactPayload) => {
     "Content-Type": "application/json",
   };
   try {
-    const response = await axios.put("https://api.qqcatalyst.com/v1/Contacts", contactPayload, {
-      headers,
-    });
+    const response = await axios.put(
+      "https://api.qqcatalyst.com/v1/Contacts",
+      contactPayload,
+      {
+        headers,
+      },
+    );
     return response.data;
   } catch (error) {
     if (error.status === 401) {
@@ -159,6 +215,88 @@ const qqCatalystInsertContact2 = async (contactPayload) => {
   }
 };
 
+const qqCatalystInsertNotes1 = async (notePayload) => {
+  if (!accessToken1) {
+    accessToken1 = await getAccessToken1(user1, password1);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken1}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.put(
+      `https://api.qqcatalyst.com/v1/Contacts/Notes`,
+      notePayload,
+      {
+        headers,
+      }
+    );
+    return response.data.Result;
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken1 = await getAccessToken1(user1, password1);
+      headers.Authorization = `Bearer ${accessToken1}`;
+    }
+
+    try {
+      const response = await axios.put(
+        `https://api.qqcatalyst.com/v1/Contacts/Notes`,
+        notePayload,
+        {
+          headers,
+        }
+      );
+      return response.data.Result;
+    } catch (error) {
+      throw new Error("Failed to insert notes from QQCatalyst");
+    }
+  }
+};
+
+const qqCatalystInsertNotes2 = async (notePayload) => {
+  if (!accessToken2) {
+    accessToken2 = await getAccessToken2(user2, password2);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken2}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.put(
+      `https://api.qqcatalyst.com/v1/Contacts/Notes`,
+      notePayload,
+      {
+        headers,
+      }
+    );
+    return response.data.Result;
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken2 = await getAccessToken2(user2, password2);
+      headers.Authorization = `Bearer ${accessToken2}`;
+    }
+
+    try {
+      const response = await axios.put(
+        `https://api.qqcatalyst.com/v1/Contacts/Notes`,
+        notePayload,
+        {
+          headers,
+        }
+      );
+      return response.data.Result;
+    } catch (error) {
+      throw new Error("Failed to insert notes from QQCatalyst");
+    }
+  }
+};
+
 module.exports = {
   insertContact,
+  getNotes,
+  insertNotes,
 };
