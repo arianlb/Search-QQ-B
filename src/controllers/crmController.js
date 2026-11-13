@@ -32,7 +32,7 @@ const getNotesController = async (req, res) => {
 
   try {
     const result = await getNotes(req.body);
-    res.status(200).json({ notes: result });
+    res.status(200).json({ notes: result, totalNotes: result.length });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
