@@ -147,10 +147,8 @@ const formatText = (note) => {
   if (!note || note.trim() === "") {
     return ".";
   }
-  return note
-    .replace(/\r\n/g, " \n ")
-    .replace(/\n{2,}/g, " \n ")
-    .trim();
+  
+  return note.toString();
 };
 
 const qqCatalystInsertContact1 = async (contactPayload) => {
