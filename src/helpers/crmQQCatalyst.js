@@ -148,8 +148,8 @@ const formatText = (note) => {
     return ".";
   }
   return note
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{2,}/g, "\n")
+    .replace(/\r\n/g, " \n ")
+    .replace(/\n{2,}/g, " \n ")
     .trim();
 };
 
