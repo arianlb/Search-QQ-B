@@ -1,6 +1,11 @@
 const axios = require("axios");
 const { getAccessToken1, getAccessToken2 } = require("./accessToken");
-const { qqCatalystRequest1, qqCatalystRequest2, qqCatalystRequestNotes1, qqCatalystRequestNotes2 } = require("./qqcatalyst");
+const {
+  qqCatalystRequest1,
+  qqCatalystRequest2,
+  qqCatalystRequestNotes1,
+  qqCatalystRequestNotes2,
+} = require("./qqcatalyst");
 let accessToken1;
 let accessToken2;
 const user1 = process.env.QQ89_USER;
@@ -73,7 +78,7 @@ const insertNotes = async (noteData) => {
   const contact = await getContactIdForNotes(noteData);
   const notePayload = {
     AssignedContactId: contact.EntityId,
-    Comment: noteData.Comment || ".",
+    Comment: formatText(noteData.Comment),
     CreatedBy: noteData.CreatedBy || "Trust CRM",
   };
   if (contact.EntityId !== 0 && contact.Office === 89) {
@@ -82,7 +87,10 @@ const insertNotes = async (noteData) => {
   if (contact.EntityId !== 0 && contact.Office === 117) {
     return qqCatalystInsertNotes2(notePayload);
   }
-  return { Result: false, ErrorMessage: "Contact not found for inserting notes." };
+  return {
+    Result: false,
+    ErrorMessage: "Contact not found for inserting notes.",
+  };
 };
 
 const getContactIdForNotes = async (contactData) => {
@@ -94,12 +102,16 @@ const getContactIdForNotes = async (contactData) => {
   ]);
 
   if (contact89.length > 0) {
-    const { EntityId } = contact89.find(({ EntityId }) => EntityId === contactId) || { EntityId: contact89[0].EntityId };
+    const { EntityId } = contact89.find(
+      ({ EntityId }) => EntityId === contactId,
+    ) || { EntityId: contact89[0].EntityId };
     return { EntityId, Office: 89 };
   }
 
   if (contact117.length > 0) {
-    const { EntityId } = contact117.find(({ EntityId }) => EntityId === contactId) || { EntityId: contact117[0].EntityId };
+    const { EntityId } = contact117.find(
+      ({ EntityId }) => EntityId === contactId,
+    ) || { EntityId: contact117[0].EntityId };
     return { EntityId, Office: 117 };
   }
 
@@ -131,6 +143,15 @@ const getAgentId = (agentName) => {
 };
 
 const formatName = (name) => name?.trim() || ".";
+const formatText = (note) => {
+  if (!note || note.trim() === "") {
+    return ".";
+  }
+  return note
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+};
 
 const qqCatalystInsertContact1 = async (contactPayload) => {
   if (!accessToken1) {
@@ -230,7 +251,7 @@ const qqCatalystInsertNotes1 = async (notePayload) => {
       notePayload,
       {
         headers,
-      }
+      },
     );
     return response.data.Result;
   } catch (error) {
@@ -246,7 +267,7 @@ const qqCatalystInsertNotes1 = async (notePayload) => {
         notePayload,
         {
           headers,
-        }
+        },
       );
       return response.data.Result;
     } catch (error) {
@@ -270,7 +291,7 @@ const qqCatalystInsertNotes2 = async (notePayload) => {
       notePayload,
       {
         headers,
-      }
+      },
     );
     return response.data.Result;
   } catch (error) {
@@ -286,7 +307,7 @@ const qqCatalystInsertNotes2 = async (notePayload) => {
         notePayload,
         {
           headers,
-        }
+        },
       );
       return response.data.Result;
     } catch (error) {
