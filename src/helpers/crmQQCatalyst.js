@@ -81,6 +81,7 @@ const insertNotes = async (noteData) => {
     Comment: formatText(noteData.Comment),
     CreatedBy: noteData.CreatedBy || "Trust CRM",
   };
+  console.log("Note payload:", notePayload.Comment);
   if (contact.EntityId !== 0 && contact.Office === 89) {
     return qqCatalystInsertNotes1(notePayload);
   }
@@ -147,8 +148,15 @@ const formatText = (note) => {
   if (!note || note.trim() === "") {
     return ".";
   }
-  
-  return note.toString();
+  // return note
+  //   .replace(/\r\n/g, " \n ")
+  //   .replace(/\n{2,}/g, " \n ")
+  //   .trim();
+  console.log("Original note:", note);
+  return note
+    .replace(/\r\n/g, " \n ")
+    .replace(/\n{2,}/g, " \n ")
+    .trim();
 };
 
 const qqCatalystInsertContact1 = async (contactPayload) => {
