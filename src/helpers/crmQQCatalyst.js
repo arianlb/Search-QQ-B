@@ -159,7 +159,7 @@ const formatNotes = (notes) => {
   }
 
   return notes.map((note) => ({
-    noteBody: `${note.Comment}\nCreated By: ${note.CreatedBy}\nCreated Date: ${note.CreatedDate.substring(0, 10)}`,
+    noteBody: `${note.Comment}\nCreated By: ${note.CreatedBy}\nCreated Date: ${note.CreatedOn.substring(0, 10)}`,
   }));
 };
 
