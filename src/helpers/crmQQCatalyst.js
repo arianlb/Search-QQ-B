@@ -66,10 +66,12 @@ const insertContact = async (contactData) => {
 const getNotes = async (contactData) => {
   const contact = await getContactIdForNotes(contactData);
   if (contact.EntityId !== 0 && contact.Office === 89) {
-    return qqCatalystRequestNotes1(contact.EntityId);
+    const notes = await qqCatalystRequestNotes1(contact.EntityId);
+    return formatNotes(notes);
   }
   if (contact.EntityId !== 0 && contact.Office === 117) {
-    return qqCatalystRequestNotes2(contact.EntityId);
+    const notes = await qqCatalystRequestNotes2(contact.EntityId);
+    return formatNotes(notes);
   }
   return [];
 };
@@ -149,6 +151,16 @@ const formatText = (note) => {
   }
 
   return note.replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\t/g, "\t");
+};
+
+const formatNotes = (notes) => {
+  if (!notes || notes.length === 0) {
+    return [];
+  }
+
+  return notes.map((note) => ({
+    noteBody: `${note.Comment}\nCreated By: ${note.CreatedBy}\nCreated Date: ${note.CreatedDate.substring(0, 10)}`,
+  }));
 };
 
 const qqCatalystInsertContact1 = async (contactPayload) => {
