@@ -14,7 +14,7 @@ const user2 = process.env.QQ117_USER;
 const password2 = process.env.QQ117_PASSWORD;
 const agents = [
   ["Valery Romero", 37419, 18437],
-  ["Sebastian Delgadillo", 37520, 18437],
+  ["Ingrid Cely", 42436, 18437],
   ["Antonio Munoz", 40624, 18437],
   ["Gabriela Vazquez", 35841, 18437],
   ["Sonia Bobadilla", 19367, 18437],
@@ -325,6 +325,82 @@ const qqCatalystInsertNotes2 = async (notePayload) => {
     }
   }
 };
+
+/*const qqCatalystGetRequest1 = async (url) => {
+  if (!accessToken1) {
+    accessToken1 = await getAccessToken1(user1, password1);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken1}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.get(
+      url,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken1 = await getAccessToken1(user1, password1);
+      headers.Authorization = `Bearer ${accessToken1}`;
+    }
+    
+    try {
+      const response = await axios.get(
+        url,
+        {
+          headers,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to get request from QQCatalyst");
+    }
+  }
+};
+
+const qqCatalystGetRequest2 = async (url) => {
+  if (!accessToken2) {
+    accessToken2 = await getAccessToken2(user2, password2);
+  }
+  const headers = {
+    Authorization: `Bearer ${accessToken2}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.get(
+      url,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      accessToken2 = await getAccessToken2(user2, password2);
+      headers.Authorization = `Bearer ${accessToken2}`;
+    }
+
+    try {
+      const response = await axios.get(
+        url,
+        {
+          headers,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to get request from QQCatalyst");
+    }
+  }
+};*/
 
 module.exports = {
   insertContact,
