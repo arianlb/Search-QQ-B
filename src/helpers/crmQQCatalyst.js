@@ -3,6 +3,7 @@ const {
   qqCatalystRequestNotes,
   qqCatalystInsertContact,
   qqCatalystInsertNotes,
+  qqCatalystGetRequest,
 } = require("./qqcatalyst");
 
 const agents = [
@@ -58,8 +59,14 @@ const insertContact = async (contactData) => {
 
 const getNotes = async (contactData) => {
   const contact = await getContactIdForNotes(contactData);
-  if (contact.EntityId !== 0 && (contact.Office === 89 || contact.Office === 117)) {
-    const notes = await qqCatalystRequestNotes(contact.EntityId, contact.Office);
+  if (
+    contact.EntityId !== 0 &&
+    (contact.Office === 89 || contact.Office === 117)
+  ) {
+    const notes = await qqCatalystRequestNotes(
+      contact.EntityId,
+      contact.Office,
+    );
     return formatNotes(notes);
   }
 
@@ -73,7 +80,10 @@ const insertNotes = async (noteData) => {
     Comment: formatText(noteData.Comment),
     CreatedBy: noteData.CreatedBy || "Trust CRM",
   };
-  if (contact.EntityId !== 0 && (contact.Office === 89 || contact.Office === 117)) {
+  if (
+    contact.EntityId !== 0 &&
+    (contact.Office === 89 || contact.Office === 117)
+  ) {
     return qqCatalystInsertNotes(notePayload, contact.Office);
   }
   return {
@@ -150,9 +160,52 @@ const formatNotes = (notes) => {
   }));
 };
 
+const getPolicies = async (office) => {
+  const { Data, TotalItems } = await qqCatalystGetRequest(
+    "https://api.qqcatalyst.com/v1/Policies/LastModifiedCreated?pageSize=100&pageNumber=1",
+    office,
+  );
+  if (TotalItems > 100) {
+    const totalPages = Math.ceil(TotalItems / 100);
+    for (let page = 2; page <= totalPages; page++) {
+      const pageData = await qqCatalystGetRequest(
+        `https://api.qqcatalyst.com/v1/Policies/LastModifiedCreated?pageSize=100&pageNumber=${page}`,
+        office,
+      );
+      Data.push(...pageData.Data);
+    }
+  }
+  return Data;
+};
+
+const getContactPhone = async (contactId, office) => {
+  const { Phone } = await qqCatalystGetRequest(
+    `https://api.qqcatalyst.com/v1/Contacts/${contactId}/ContactSummaryDTO`,
+    office
+  );
+  return Phone;
+};
+
+const getPhoneList = async () => {
+  const offices = [89, 117];
+  const phoneList = [];
+  for (const office of offices) {
+    const policies = await getPolicies(office);
+    for (const policy of policies) {
+      if (policy.Status === "A") {
+        const phone = await getContactPhone(policy.CustomerId, office);
+        if (phone) {
+          phoneList.push(phone);
+        }
+      }
+    }
+  }
+  return phoneList;
+};
 
 module.exports = {
   insertContact,
   getNotes,
   insertNotes,
+  getPhoneList,
 };
