@@ -1,19 +1,15 @@
 const {
-  qqCatalystRequest1,
-  qqCatalystRequest2,
-  qqCatalystRequestPolicies1,
-  qqCatalystRequestPolicies2,
-  qqCatalystRequestInfo1,
-  qqCatalystRequestInfo2,
-  qqCatalystRequestNotes1,
-  qqCatalystRequestNotes2,
+  qqCatalystRequestSearch,
+  qqCatalystRequestPolicies,
+  qqCatalystRequestInfo,
+  qqCatalystRequestNotes,
 } = require("../helpers/qqcatalyst");
 
 const search = async (req, res) => {
   try {
     const [sebanda89, sebanda117] = await Promise.all([
-      qqCatalystRequest1(req.body.criteria),
-      qqCatalystRequest2(req.body.criteria),
+      qqCatalystRequestSearch(req.body.criteria, 89),
+      qqCatalystRequestSearch(req.body.criteria, 117),
     ]);
     res.status(200).json({ sebanda89, sebanda117 });
   } catch (error) {
@@ -24,11 +20,8 @@ const search = async (req, res) => {
 const policies = async (req, res) => {
   let policies;
   try {
-    if (req.body.location === 89) {
-      policies = await qqCatalystRequestPolicies1(req.body.customerId);
-    }
-    if (req.body.location === 117) {
-      policies = await qqCatalystRequestPolicies2(req.body.customerId);
+    if (req.body.location === 89 || req.body.location === 117) {
+      policies = await qqCatalystRequestPolicies(req.body.customerId, req.body.location);
     }
     res.status(200).json(policies);
   } catch (error) {
@@ -39,11 +32,8 @@ const policies = async (req, res) => {
 const info = async (req, res) => {
   let info;
   try {
-    if (req.body.location === 89) {
-      info = await qqCatalystRequestInfo1(req.body.customerId);
-    }
-    if (req.body.location === 117) {
-      info = await qqCatalystRequestInfo2(req.body.customerId);
+    if (req.body.location === 89 || req.body.location === 117) {
+      info = await qqCatalystRequestInfo(req.body.customerId, req.body.location);
     }
     res.status(200).json(info);
   } catch (error) {
@@ -54,11 +44,8 @@ const info = async (req, res) => {
 const notes = async (req, res) => {
   let notes;
   try {
-    if (req.body.location === 89) {
-      notes = await qqCatalystRequestNotes1(req.body.customerId);
-    }
-    if (req.body.location === 117) {
-      notes = await qqCatalystRequestNotes2(req.body.customerId);
+    if (req.body.location === 89 || req.body.location === 117) {
+      notes = await qqCatalystRequestNotes(req.body.customerId, req.body.location);
     }
     res.status(200).json(notes);
   } catch (error) {

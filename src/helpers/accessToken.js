@@ -1,13 +1,12 @@
 const axios = require("axios");
 
-
-const getAccessToken1 = async (user, password) => {
+const getAccessToken89 = async () => {
   const params = new URLSearchParams();
   params.append("client_id", process.env.QQ1_CLIENT_ID);
   params.append("client_secret", process.env.QQ1_CLIENT_SECRET);
   params.append("grant_type", "password");
-  params.append("username", user);
-  params.append("password", password);
+  params.append("username", process.env.QQ89_USER);
+  params.append("password", process.env.QQ89_PASSWORD);
 
   try {
     const response = await axios.post(
@@ -26,13 +25,13 @@ const getAccessToken1 = async (user, password) => {
   }
 };
 
-const getAccessToken2 = async (user, password) => {
+const getAccessToken117 = async () => {
   const params = new URLSearchParams();
   params.append("client_id", process.env.QQ2_CLIENT_ID);
   params.append("client_secret", process.env.QQ2_CLIENT_SECRET);
   params.append("grant_type", "password");
-  params.append("username", user);
-  params.append("password", password);
+  params.append("username", process.env.QQ117_USER);
+  params.append("password", process.env.QQ117_PASSWORD);
 
   try {
     const response = await axios.post(
@@ -51,7 +50,16 @@ const getAccessToken2 = async (user, password) => {
   }
 };
 
+const getAccessToken = async (office) => {
+  if (office === 89) {
+    return getAccessToken89();
+  } else if (office === 117) {
+    return getAccessToken117();
+  } else {
+    return null; // or throw an error if the office is not recognized
+  }
+};
+
 module.exports = {
-  getAccessToken1,
-  getAccessToken2,
+  getAccessToken,
 };
