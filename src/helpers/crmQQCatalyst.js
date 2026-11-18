@@ -24,7 +24,7 @@ const agents = [
   ["Laura Yaya", 41121, 18437],
   ["Monica Barrero", 41457, 18437],
   ["Darelis Fernandez", 2, 1],
-  ["Johana Pulido", 9984, 1],
+  ["Ayme Mena", 10183, 1],
 ];
 
 const insertContact = async (contactData) => {
@@ -141,7 +141,7 @@ const getAgentId = (agentName) => {
     : { agentId: 2, officeId: 1 };
 };
 
-const formatName = (name) => name?.trim() || ".";
+const formatName = (name) => name?.trim() || "Unknown";
 const formatText = (note) => {
   if (!note || note.trim() === "") {
     return ".";
@@ -195,7 +195,7 @@ const getPhoneList = async () => {
       if (policy.Status === "A") {
         const phone = await getContactPhone(policy.CustomerId, office);
         if (phone) {
-          phoneList.push(phone);
+          phoneList.push(phone.length > 10 ? '+' + phone : phone);
         }
       }
     }
