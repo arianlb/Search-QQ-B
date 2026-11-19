@@ -15,7 +15,7 @@ const agents = [
   ["Lisbeth Lasso", 7805, 1],
   ["Vanessa Arevalo", 9608, 1],
   ["Victoria Thomas", 40772, 18437],
-  ["Jeimy Jimenez", 35860, 18437],
+  ["Alicia Avedano", 35860, 18437],
   ["Isabella Pombo", 36183, 18437],
   ["Steven Franco", 24413, 18437],
   ["Valeria Medina", 30032, 18437],
@@ -181,26 +181,31 @@ const getPolicies = async (office) => {
 const getContactPhone = async (contactId, office) => {
   const { Phone } = await qqCatalystGetRequest(
     `https://api.qqcatalyst.com/v1/Contacts/${contactId}/ContactSummaryDTO`,
-    office
+    office,
   );
   return Phone;
 };
 
-const getPhoneList = async () => {
-  const offices = [89, 117];
+const getPhoneListByOffice = async (office) => {
+  const policies = await getPolicies(office);
   const phoneList = [];
-  for (const office of offices) {
-    const policies = await getPolicies(office);
-    for (const policy of policies) {
-      if (policy.Status === "A") {
-        const phone = await getContactPhone(policy.CustomerId, office);
-        if (phone) {
-          phoneList.push(phone.length > 10 ? '+' + phone : phone);
-        }
+  for (const policy of policies) {
+    if (policy.Status === "A" && policy.CreatedOn.substring(0, 10) === policy.DateLastModified.substring(0, 10)) {
+      const phone = await getContactPhone(policy.CustomerId, office);
+      if (phone) {
+        phoneList.push(phone.length > 10 ? "+" + phone : phone);
       }
     }
   }
   return phoneList;
+};
+
+const getPhoneList = async () => {
+  const [phoneList89, phoneList117] = await Promise.all([
+    getPhoneListByOffice(89),
+    getPhoneListByOffice(117),
+  ]);
+  return [...phoneList89, ...phoneList117];
 };
 
 module.exports = {
