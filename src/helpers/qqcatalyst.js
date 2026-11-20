@@ -251,6 +251,42 @@ const qqCatalystGetRequest = async (url, office) => {
   }
 };
 
+const qqCatalystSetSource = async (contactId, sourceId, office) => {
+  let token = await getToken(office, false);
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.put(
+      `https://api.qqcatalyst.com/v1/Customers/${contactId}/UpdateCustomerSource/${sourceId}`,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (error.status === 401) {
+      await new Promise((resolve) => setTimeout(resolve, 60000));
+      token = await getToken(office, true);
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    try {
+      const response = await axios.put(
+        `https://api.qqcatalyst.com/v1/Customers/${contactId}/UpdateCustomerSource/${sourceId}`,
+        {
+          headers,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to set source from QQCatalyst");
+    }
+  }
+};
+
 const getToken = async (office, update) => {
   if (office === 89) {
     if (!accessToken89 || update) {
@@ -274,4 +310,5 @@ module.exports = {
   qqCatalystInsertContact,
   qqCatalystInsertNotes,
   qqCatalystGetRequest,
+  qqCatalystSetSource,
 };

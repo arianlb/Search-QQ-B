@@ -4,6 +4,7 @@ const {
   qqCatalystInsertContact,
   qqCatalystInsertNotes,
   qqCatalystGetRequest,
+  qqCatalystSetSource,
 } = require("./qqcatalyst");
 
 const agents = [
@@ -46,9 +47,17 @@ const insertContact = async (contactData) => {
     };
 
     if (officeId === 18437) {
-      return qqCatalystInsertContact(contactPayload, 89);
+      const result = await qqCatalystInsertContact(contactPayload, 89);
+      if (result) {
+        setSource(contactData.Source, contactData.Marketing, 89, result.EntityID);
+      }
+      return result;
     } else if (officeId === 1) {
-      return qqCatalystInsertContact(contactPayload, 117);
+      const result = await qqCatalystInsertContact(contactPayload, 117);
+      if (result) {
+        setSource(contactData.Source, contactData.Marketing, 117, result.EntityID);
+      }
+      return result;
     }
 
     return { EntityID: 0, ErrorMessage: "office ID not found." };
@@ -56,6 +65,17 @@ const insertContact = async (contactData) => {
 
   return { EntityID: contactExistsId, ErrorMessage: "Contact already exists." };
 };
+
+// Este codigo hay que arreglarlo!!!
+const setSource = (source, marketing, office, contactId) => {
+  if (source === "email") {
+    return qqCatalystSetSource(contactId, office === 89 ? 49 : 19, office);
+  }
+
+  if (marketing === "T") {
+    return qqCatalystSetSource(contactId, office === 89 ? 84 : 35, office);
+  }
+}
 
 const getNotes = async (contactData) => {
   const contact = await getContactIdForNotes(contactData);
