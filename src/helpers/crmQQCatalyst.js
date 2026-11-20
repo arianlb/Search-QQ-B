@@ -49,13 +49,13 @@ const insertContact = async (contactData) => {
     if (officeId === 18437) {
       const result = await qqCatalystInsertContact(contactPayload, 89);
       if (result) {
-        setSource(contactData.Source, contactData.Marketing, 89, result.EntityID);
+        await setSource(contactData.Source, contactData.Marketing, 89, result.EntityID);
       }
       return result;
     } else if (officeId === 1) {
       const result = await qqCatalystInsertContact(contactPayload, 117);
       if (result) {
-        setSource(contactData.Source, contactData.Marketing, 117, result.EntityID);
+        await setSource(contactData.Source, contactData.Marketing, 117, result.EntityID);
       }
       return result;
     }
@@ -67,12 +67,22 @@ const insertContact = async (contactData) => {
 };
 
 // Este codigo hay que arreglarlo!!!
-const setSource = (source, marketing, office, contactId) => {
-  if (source === "email") {
-    return qqCatalystSetSource(contactId, office === 89 ? 49 : 19, office);
+const setSource = async (source, marketing, office, contactId) => {
+  
+  if (marketing === "S") {
+    const sourceMapping = [
+      ['email', 49, 19],
+      ['whatsapp', 65, 32],
+      ['call', 62, 31],
+    ];
+    
+    const sourceEntry = sourceMapping.find(([src]) => src === source) || ['referral', 55, 25];  
+    return qqCatalystSetSource(contactId, office === 89 ? sourceEntry[1] : sourceEntry[2], office);
   }
 
-  if (marketing === "T") {
+  if (source === "email") {
+    return qqCatalystSetSource(contactId, office === 89 ? 49 : 19, office);
+  } else {
     return qqCatalystSetSource(contactId, office === 89 ? 84 : 35, office);
   }
 }
