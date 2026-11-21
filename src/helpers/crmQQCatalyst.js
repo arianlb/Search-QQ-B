@@ -49,13 +49,15 @@ const insertContact = async (contactData) => {
     if (officeId === 18437) {
       const result = await qqCatalystInsertContact(contactPayload, 89);
       if (result) {
-        await setSource(contactData.Source, contactData.Marketing, 89, result.EntityID);
+        // Invento con Vercel
+        result.promise = setSource(contactData.Source, contactData.Marketing, 89, result.EntityID);
       }
       return result;
     } else if (officeId === 1) {
       const result = await qqCatalystInsertContact(contactPayload, 117);
       if (result) {
-        await setSource(contactData.Source, contactData.Marketing, 117, result.EntityID);
+        // Invento con Vercel
+        result.promise = setSource(contactData.Source, contactData.Marketing, 117, result.EntityID);
       }
       return result;
     }
