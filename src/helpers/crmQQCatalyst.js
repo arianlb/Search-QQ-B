@@ -26,6 +26,7 @@ const agents = [
   ["Monica Barrero", 41457, 18437],
   ["Darelis Fernandez", 2, 1],
   ["Ayme Mena", 10183, 1],
+  ["Marco Romero", 10224, 1],
 ];
 
 const insertContact = async (contactData) => {
